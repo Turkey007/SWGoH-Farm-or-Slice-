@@ -73,4 +73,5 @@ greenmatrix = modslice(greenrange);
 
 %Goals:
 %include efficiency of refreshing Ground War for 7 guaranteed blues
-
+%include efficiency of purchasing mods from the mod shop
+%include efficiency of refreshing the mod shop
