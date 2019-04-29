@@ -1,13 +1,13 @@
-clc;clear all;close all
+clc; clear all; close all;
 
 %slices remaining
 %not sure if this'll be useful
-gold = 0
-purple = 1
-blue = 2
-green = 3
-grey = 4
-unrolled = 5
+gold = 0;
+purple = 1;
+blue = 2;
+green = 3;
+grey = 4;
+unrolled = 5;
 
 %possible starting speeds (we don't care about 0 speed)
 purplerange = 3:23;
@@ -15,18 +15,69 @@ bluerange = 3:17;
 greenrange = 3:11;
 greyrange = 3:5;
 
-%crystal cost to slice a mod (or level, in the case of greys)
-%currently arbitrary values. Will calculate the cost later
-greycost = 42
-greencost = 44
-bluecost = 100
-purplecost = 150
-goldcost = 200
+%salvage cost to slice a mod 
+greysalvage = 0;
+greensalvage = 10;
+bluesalvage = 20;
+purplesalvage = 35;
+goldsalvage = 50;
 
-%minimum speed the user cares about
-%let them input the value (for now it's faster to debug without their input)
+
+%credit cost to slice a mod 
+%In the case of greys, it's the level cost minus the sell cost,
+%since most will end up in the trash
+greycredits = 151100;
+greencredits = 18000;
+bluecredits = 36000;
+purplecredits = 63000;
+goldcredits = 90000;
+
+%This is the user input, which is commented out. 
+%(For now it's faster to debug without their input)
+%{
+defaulttargetspeed = 15;
+inputprompt = ['Please enter the minimum desired speed. (Press enter to use the default value of ', num2str(defaulttargetspeed), ')\n'];
+targetspeed = input(inputprompt);
+if isempty(targetspeed)
+  targetspeed = defaulttargetspeed;
+end
+%}
+
 targetspeed = 15
+output = ['Target speed is ', num2str(targetspeed), ' \n'];
+fprintf(output)
 
+
+
+%{
+defaultcreditsratio = 3500;
+inputprompt = ['Please enter how many credits are worth 1 crystal. (Press enter to use the default value of ', num2str(defaultcreditsratio), ')\n'];
+creditsratio = input(inputprompt);
+if isempty(creditsratio)
+  creditsratio = defaultcreditsratio;
+end
+%}
+
+creditsratio = 3500;
+output = ['Credits ratio is ', num2str(creditsratio), ' \n'];
+fprintf(output)
+
+
+%crystal cost per salvage
+refreshcost = 50;
+refreshenergy = 120;
+energy = 12;
+sims = refreshenergy/energy;
+droprate = 1.2;
+drops = sims*droprate;
+crystalspersalvage = refreshcost/drops;
+
+%Total crystal cost to slice (including credit cost)
+greycost = greycredits/creditsratio;
+greencost = crystalspersalvage*greensalvage + greencredits/creditsratio;
+bluecost = crystalspersalvage*bluesalvage + bluecredits/creditsratio;
+purplecost = crystalspersalvage*purplesalvage + purplecredits/creditsratio;
+goldcost = crystalspersalvage*goldsalvage + goldcredits/creditsratio;
 
 
 %This array is all slicing outcomes for speed bumps, equally weighted
