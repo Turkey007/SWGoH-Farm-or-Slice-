@@ -93,6 +93,8 @@ level(16) = 5;
 
 purplematrix = modslice(purplerange);
 
+%This for loop was very unnecessary so I'm redoing it simpler
+%{
 purplespeedgain = zeros(length(purplematrix),size(purplematrix,2));
 for row = 1:size(purplematrix,1)
     for column = 1:size(purplematrix,2)
@@ -104,25 +106,56 @@ for row = 1:size(purplematrix,1)
         purplespeedgain(row, column) = neg2zero(purplespeedgain(row, column));
     end
 end
+%}
+
+purplespeedgain = min(purplematrix - targetspeed, slicebumps);
+purplespeedgain = neg2zero(purplespeedgain);
 
 %displays efficiency
-efficiency(:,1) = purplerange;
-%multiplied by 100 to display as %
-efficiency(:,2) = mean(purplespeedgain, 2) * 100 / goldcost;
-percentconversion = strcat(num2str(efficiency(:,2)),'%');
+purpleefficiency(:,1) = purplerange;
+purpleefficiency(:,2) = mean(purplespeedgain, 2) / goldcost;
 
+%{
 % I can't get this damn table to look nice. It's all wrong.
+%multiplied by 100 to display as %
+efficiency(:,2) = efficiency(:,2)*100;
+percentconversion = strcat(num2str(efficiency(:,2)),'%');
 nicetable(:,1) = efficiency(:,1);
 nicetable(:,2) = percentconversion(:,1);
 disp(nicetable)
+%PrettyTable = array2table(nicetable)
+%}
 
 bluematrix = modslice(bluerange);
 
+for m = 1:size(bluematrix, 1)
+    for n = 2:size(bluematrix, 2)
+        purplerow = find(purplematrix(:,1) == bluematrix(m,n,1));
+        for k = 2:size(purplematrix, 2)
+            bluematrix(m,n,k) = purplematrix(purplerow, k);
+        end
+    end
+end
+
+bluespeedgain = min(bluematrix - targetspeed, slicebumps);
+bluespeedgain = neg2zero(bluespeedgain);
+
+%Should I approximate the cumulative cost of slicing a blue by saying:
+%75% of blues won't be sliced further because speed won't hit.
+%So the total cost to slice a blue all the way is 4 times the bluecost + the purplecost
+%But then we only use the part of the blue table where speed hits the first time
+blueefficiency(:,1) = bluerange;
+blueefficiency(:,2) = mean(bluespeedgain(:,:,:) ) / (bluecost + purplecost)
+%blueefficiency(:,2) = mean( ) / (4*bluecost + purplecost)
+
 greenmatrix = modslice(greenrange);
 
-%PrettyTable = array2table(purplematrix)
 
 %Goals:
 %include efficiency of refreshing Ground War for 7 guaranteed blues
 %include efficiency of purchasing mods from the mod shop
 %include efficiency of refreshing the mod shop
+%add option to treat speedgain scaling as nonlinear
+%so the speed gained over target speed could be squared or to the 1.3 power
+%e.g.
+%This would represent that higher speeds are exponentially more valuable
